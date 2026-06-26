@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+.next/
+
+# Environment variables (SECRETS — ne jamais commit)
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor
+.vscode/
+.idea/
+
+# Claude
+.claude/
+
+# Prisma generated (pas le schema, juste le client)
+apps/backend/generated/
+
+# Vite cache
+.vite/

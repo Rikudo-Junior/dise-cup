@@ -1,0 +1,317 @@
+// ISE World Cup Predictor - Prisma Schema
+// ENSEA Abidjan
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── ENUMS ────────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  STUDENT
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum MatchStatus {
+  SCHEDULED
+  LIVE
+  FINISHED
+  POSTPONED
+  CANCELLED
+}
+
+enum PredictionType {
+  SCORE_EXACT
+  WINNER
+  DRAW
+}
+
+enum BadgeType {
+  CHAMPION
+  WIN_STREAK
+  EXACT_SCORE_KING
+  SURPRISE_EXPERT
+  TOP_1
+  TOP_2
+  TOP_3
+  FIRST_PREDICTION
+  PERFECT_WEEK
+  CENTURION
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+enum NotificationType {
+  MATCH_REMINDER_24H
+  MATCH_REMINDER_3H
+  MATCH_REMINDER_30MIN
+  MATCH_STARTED
+  MATCH_FINISHED
+  SCORE_UPDATED
+  BADGE_EARNED
+  RANKING_CHANGED
+}
+
+enum RankingPeriod {
+  ALL_TIME
+  WEEKLY
+  MONTHLY
+}
+
+enum AuditAction {
+  USER_CREATED
+  USER_BANNED
+  USER_UNBANNED
+  MATCH_CREATED
+  MATCH_UPDATED
+  MATCH_DELETED
+  SCORES_RECALCULATED
+  ADMIN_LOGIN
+  EXPORT_RANKINGS
+}
+
+// ─── MODELS ───────────────────────────────────────────────────────────────────
+
+model User {
+  id              String    @id @default(uuid())
+  email           String    @unique
+  username        String    @unique
+  firstName       String
+  lastName        String
+  promotion       String
+  avatarUrl       String?
+  googleId        String?   @unique
+  passwordHash    String?
+  role            UserRole  @default(STUDENT)
+  isBanned        Boolean   @default(false)
+  banReason       String?
+  totalPoints     Int       @default(0)
+  totalPredictions Int      @default(0)
+  correctPredictions Int    @default(0)
+  exactScorePredictions Int @default(0)
+  currentStreak   Int       @default(0)
+  bestStreak      Int       @default(0)
+  lastActiveAt    DateTime?
+  emailVerified   Boolean   @default(false)
+  emailVerifyToken String?
+  resetPasswordToken String?
+  resetPasswordExpires DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  predictions     Prediction[]
+  rankings        Ranking[]
+  userBadges      UserBadge[]
+  notifications   Notification[]
+  auditLogs       AuditLog[]    @relation("AuditActor")
+
+  @@map("users")
+  @@index([totalPoints(sort: Desc)])
+  @@index([email])
+  @@index([googleId])
+}
+
+model Season {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  description String?
+  startDate   DateTime
+  endDate     DateTime
+  isActive    Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  tournaments Tournament[]
+
+  @@map("seasons")
+}
+
+model Tournament {
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  logoUrl     String?
+  country     String?
+  startDate   DateTime
+  endDate     DateTime
+  isActive    Boolean   @default(true)
+  apiId       String?   @unique
+  seasonId    String
+  season      Season    @relation(fields: [seasonId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  matches     Match[]
+
+  @@map("tournaments")
+  @@index([isActive])
+}
+
+model Match {
+  id              String      @id @default(uuid())
+  apiId           String?     @unique
+  tournamentId    String
+  tournament      Tournament  @relation(fields: [tournamentId], references: [id])
+  homeTeam        String
+  awayTeam        String
+  homeTeamFlag    String?
+  awayTeamFlag    String?
+  homeTeamCode    String?
+  awayTeamCode    String?
+  stadium         String?
+  city            String?
+  stage           String?
+  scheduledAt     DateTime
+  predictionDeadline DateTime
+  status          MatchStatus @default(SCHEDULED)
+  homeScore       Int?
+  awayScore       Int?
+  firstScoringTeam String?
+  isProcessed     Boolean     @default(false)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  predictions     Prediction[]
+  notifications   Notification[]
+
+  @@map("matches")
+  @@index([status])
+  @@index([scheduledAt])
+  @@index([tournamentId])
+}
+
+model Prediction {
+  id              String          @id @default(uuid())
+  userId          String
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  matchId         String
+  match           Match           @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  predictedHome        Int
+  predictedAway        Int
+  firstScorer          String?
+  predictionType       PredictionType?
+  pointsEarned         Int             @default(0)
+  isExactScore         Boolean         @default(false)
+  isCorrectWinner      Boolean         @default(false)
+  isCorrectDiff        Boolean         @default(false)
+  isCorrectFirstScorer Boolean         @default(false)
+  isProcessed          Boolean         @default(false)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@unique([userId, matchId])
+  @@map("predictions")
+  @@index([userId])
+  @@index([matchId])
+  @@index([isProcessed])
+}
+
+model Ranking {
+  id              String        @id @default(uuid())
+  userId          String
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  period          RankingPeriod
+  periodKey       String
+  rank            Int
+  points          Int           @default(0)
+  predictions     Int           @default(0)
+  correctPredictions Int        @default(0)
+  exactScores     Int           @default(0)
+  successRate     Float         @default(0)
+  weekNumber      Int?
+  monthNumber     Int?
+  year            Int?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@unique([userId, period, periodKey])
+  @@map("rankings")
+  @@index([period, rank])
+  @@index([userId])
+  @@index([periodKey])
+}
+
+model Badge {
+  id          String    @id @default(uuid())
+  type        BadgeType @unique
+  name        String
+  description String
+  iconUrl     String?
+  emoji       String
+  condition   Json
+  createdAt   DateTime  @default(now())
+
+  userBadges  UserBadge[]
+
+  @@map("badges")
+}
+
+model UserBadge {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badgeId   String
+  badge     Badge    @relation(fields: [badgeId], references: [id])
+  earnedAt  DateTime @default(now())
+
+  @@unique([userId, badgeId])
+  @@map("user_badges")
+  @@index([userId])
+}
+
+model Notification {
+  id        String             @id @default(uuid())
+  userId    String
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  matchId   String?
+  match     Match?             @relation(fields: [matchId], references: [id], onDelete: SetNull)
+  type      NotificationType
+  title     String
+  body      String
+  status    NotificationStatus @default(PENDING)
+  sentAt    DateTime?
+  readAt    DateTime?
+  metadata  Json?
+  createdAt DateTime           @default(now())
+
+  @@map("notifications")
+  @@index([userId, status])
+  @@index([matchId])
+  @@index([status])
+}
+
+model AuditLog {
+  id        String      @id @default(uuid())
+  actorId   String?
+  actor     User?       @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+  action    AuditAction
+  target    String?
+  metadata  Json?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime    @default(now())
+
+  @@map("audit_logs")
+  @@index([actorId])
+  @@index([action])
+  @@index([createdAt(sort: Desc)])
+}
+
+model AppConfig {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     Json
+  updatedAt DateTime @updatedAt
+
+  @@map("app_config")
+}
