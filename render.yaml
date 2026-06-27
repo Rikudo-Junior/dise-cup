@@ -3,14 +3,12 @@ services:
     name: disecup-backend
     runtime: node
     rootDir: apps/backend
-    buildCommand: npm install && npx prisma generate && npm run build
-    startCommand: npm run start:prod
+    buildCommand: npm install --include=dev && npx prisma generate && npx nest build
+    startCommand: npx prisma migrate deploy && node dist/src/main
     envVars:
       - key: NODE_ENV
         value: production
       - key: DATABASE_URL
-        sync: false
-      - key: DIRECT_URL
         sync: false
       - key: JWT_SECRET
         sync: false
