@@ -1,5 +1,14 @@
 import api from './client';
-import type { RegisterDto, LoginDto } from './types';
+
+interface RegisterDto {
+  email: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  promotion: string;
+  password: string;
+}
+interface LoginDto { email: string; password: string; }
 
 // Auth
 export const authApi = {
@@ -17,7 +26,7 @@ export const matchesApi = {
   getOne: (id: string) => api.get(`/matches/${id}`).then(r => r.data),
   updateScore: (id: string, data: { homeScore: number; awayScore: number; status?: string }) =>
     api.patch(`/matches/${id}/score`, data).then(r => r.data),
-  updateStatus: (id: string, data: { status: string; homeScore?: number; awayScore?: number }) =>
+  updateStatus: (id: string, data: { status: string; homeScore?: number; awayScore?: number; firstScoringTeam?: string }) =>
     api.patch(`/matches/${id}/status`, data).then(r => r.data),
   create: (data: object) => api.post('/matches', data).then(r => r.data),
   delete: (id: string) => api.delete(`/matches/${id}`).then(r => r.data),
@@ -69,13 +78,3 @@ export const adminApi = {
   unbanUser: (id: string) =>
     api.patch(`/admin/users/${id}/unban`).then(r => r.data),
 };
-
-interface RegisterDto {
-  email: string;
-  username: string;
-  firstName: string;
-  lastName: string;
-  promotion: string;
-  password: string;
-}
-interface LoginDto { email: string; password: string; }
