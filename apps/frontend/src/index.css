@@ -1099,3 +1099,168 @@ img { max-width: 100%; }
   .mp-title { font-size: 1.5rem; }
   .mp-matches-grid { grid-template-columns: 1fr; }
 }
+
+/* ══════════════════════════════════════════
+   MOBILE RESPONSIVE — global
+══════════════════════════════════════════ */
+
+/* ── Mobile bottom nav (hidden on desktop) ── */
+.mobile-bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 60px;
+  background: #0a0d14;
+  border-top: 1px solid rgba(255,255,255,.08);
+  z-index: 100;
+  padding: 0 4px;
+}
+.mobile-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  color: #4a5568;
+  text-decoration: none;
+  font-size: .6rem;
+  font-weight: 700;
+  letter-spacing: .3px;
+  text-transform: uppercase;
+  padding: 6px 4px;
+  transition: color .15s;
+}
+.mobile-nav-item.active { color: #00c853; }
+
+/* ── Mobile hamburger (hidden on desktop) ── */
+.mobile-menu-btn { display: none; }
+
+/* ── Mobile slide menu ── */
+.mobile-menu-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,.6);
+  backdrop-filter: blur(4px);
+}
+.mobile-menu {
+  position: absolute;
+  top: 64px; left: 0; right: 0;
+  background: #0f1117;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  padding: 8px 0 16px;
+  display: flex;
+  flex-direction: column;
+}
+.mobile-menu-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px 18px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  margin-bottom: 8px;
+}
+.mobile-menu-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 1rem; color: white; flex-shrink: 0;
+}
+.mobile-menu-username { font-weight: 700; color: white; font-size: .95rem; }
+.mobile-menu-sub { font-size: .78rem; color: var(--text-muted); margin-top: 2px; }
+.mobile-menu-link {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 20px;
+  color: #94a3b8; font-weight: 600; font-size: .95rem;
+  text-decoration: none; transition: all .12s;
+}
+.mobile-menu-link.active { color: #00c853; background: rgba(0,200,83,.06); }
+.mobile-menu-link:hover { background: rgba(255,255,255,.04); color: white; }
+.mobile-menu-logout {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 20px; margin-top: 8px;
+  border-top: 1px solid rgba(255,255,255,.06);
+  color: #ef4444; font-weight: 600; font-size: .95rem;
+  background: none; border-left: none; border-right: none; border-bottom: none;
+  cursor: pointer; width: 100%; text-align: left;
+}
+
+/* ══════════════════════════════════════════
+   BREAKPOINT MOBILE ≤ 768px
+══════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* Navbar */
+  .navbar { padding: 0 16px; gap: 12px; }
+  .navbar-links { display: none; }
+  .brand-sub { display: none; }
+  .user-chip { display: none; }
+  .btn-icon:not(.mobile-menu-btn) { display: none; }
+  .mobile-menu-btn { display: flex; }
+
+  /* Bottom nav */
+  .mobile-bottom-nav { display: flex; }
+  .main-with-nav { padding-bottom: 68px; }
+
+  /* ── HomePage ── */
+  .hp { padding: 16px 12px 12px; gap: 16px; }
+  .hp-greeting { font-size: 1.25rem; }
+  .hp-greeting-sub { font-size: .8rem; }
+  .hp-rank-badge { padding: 8px 12px; }
+  .hp-rank-number { font-size: 1.1rem; }
+  .hp-rank-label { font-size: .6rem; }
+  .hp-stats { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .hp-stat-card { padding: 14px 12px; gap: 4px; }
+  .hp-stat-value { font-size: 1.3rem; }
+  .hp-stat-label { font-size: .72rem; }
+  .hp-main-grid { grid-template-columns: 1fr; gap: 12px; }
+  .hp-section-head { padding: 12px 14px; }
+  .hp-section-body { padding: 8px; }
+  .hp-top5-row { padding: 10px 12px; }
+  .hp-footer { font-size: .7rem; padding: 16px 0 20px; }
+
+  /* ── MatchesPage ── */
+  .mp { padding: 16px 12px 12px; gap: 12px; }
+  .mp-title { font-size: 1.5rem; margin-bottom: 0; }
+  .mp-status-tabs { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 2px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .mp-status-tabs::-webkit-scrollbar { display: none; }
+  .mp-phase-tabs  { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 2px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .mp-phase-tabs::-webkit-scrollbar { display: none; }
+  .mp-status-tab { white-space: nowrap; flex-shrink: 0; padding: 7px 14px; font-size: .82rem; }
+  .mp-phase-tab  { white-space: nowrap; flex-shrink: 0; }
+  .mp-matches-grid { grid-template-columns: 1fr; padding: 10px; gap: 10px; }
+
+  /* ── RankingsPage ── */
+  .rp { padding: 16px 12px 12px; gap: 14px; }
+  .rp-title { font-size: 1.5rem; }
+  .rp-my-badge { padding: 8px 12px; }
+  .rp-my-rank { font-size: 1.2rem; }
+  .rp-tabs { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 2px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .rp-tabs::-webkit-scrollbar { display: none; }
+  .rp-tab { white-space: nowrap; flex-shrink: 0; padding: 6px 12px; font-size: .78rem; }
+  /* Podium plus compact */
+  .rp-podium-wrap { padding: 20px 12px 0; }
+  .rp-pod-slot { width: 100px; }
+  .rp-pod-avatar { width: 36px; height: 36px; font-size: .85rem; }
+  .rp-pod-avatar-lg { width: 44px; height: 44px; font-size: 1rem; }
+  .rp-pod-gold   { height: 72px; }
+  .rp-pod-silver { height: 52px; }
+  .rp-pod-bronze { height: 40px; }
+  .rp-pod-name { font-size: .75rem; }
+  .rp-pod-pts  { font-size: .7rem; }
+  /* Table: masquer colonne PROMO sur mobile */
+  .rp-table-head { grid-template-columns: 44px 1fr 80px; padding: 10px 14px; }
+  .rp-table-head span:nth-child(3) { display: none; }
+  .rp-row { grid-template-columns: 44px 1fr 80px; padding: 12px 14px; }
+  .rp-promo { display: none; }
+  .rp-username { font-size: .82rem; }
+  .rp-pagination { gap: 10px; }
+
+  /* ── Match card ── */
+  .match-card { border-radius: 12px; }
+  .match-card-body { padding: 10px 12px; }
+  .team-name { display: none; }
+  .score-display { font-size: 1.4rem; }
+
+  /* ── Auth pages ── */
+  .auth-card { padding: 28px 20px; }
+  .form-row { grid-template-columns: 1fr; }
+}
